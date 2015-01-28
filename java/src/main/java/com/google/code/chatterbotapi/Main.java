@@ -41,7 +41,7 @@ public class Main {
             public void run() {
                 long timeElapsedSinceLastBotRequest = System.currentTimeMillis() - lastTimeUsed;
                 if (timeElapsedSinceLastBotRequest > TimeUnit.MINUTES.toMillis(5)) {
-                    ChatterBotSession newBot = sessions.get((int) (counter % sessions.length()));
+                    ChatterBotSession newBot = sessions.get((int) (counter++ % sessions.length()));
                     System.out.println("SWAPPED BOTS from: " + activeSession + " -> " + newBot);
                     lastTimeUsed = System.currentTimeMillis();
                     activeSession.set(newBot);
@@ -60,10 +60,6 @@ public class Main {
                     ChatterBotFactory factory = new ChatterBotFactory();
                     ChatterBot bot1 = factory.create(ChatterBotType.CLEVERBOT);
                     sessions.set(0, bot1.createSession());
-//                    ChatterBot bot2 = factory.create(ChatterBotType.JABBERWACKY);
-//                    sessions.set(1, bot2.createSession());
-//                    ChatterBot bot3 = factory.create(ChatterBotType.PANDORABOTS, "b0dafd24ee35a477");
-//                    sessions.set(2, bot3.createSession());
                     System.out.println("Finished Setting Bots");
                 } catch (Exception ex) {
                     System.err.println("Failed to Create bots");
@@ -87,7 +83,7 @@ public class Main {
                 int length = bytes.length;
                 exchange.sendResponseHeaders(200, length);
                 exchange.getResponseBody().write(bytes);
-
+                lastTimeUsed = System.currentTimeMillis();
                 exchange.close();
             }
         });
@@ -111,6 +107,7 @@ public class Main {
         String[] split = queryString.split("\\?text=");
         if (split.length > 1) {
             String decoded = URLDecoder.decode(split[1]);
+            System.out.println("Chatting with text: " + decoded);
             try {
                 String returned = activeSession.get().think(decoded);
                 lastTimeUsed = System.currentTimeMillis();
